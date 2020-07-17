@@ -1,0 +1,72 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block content%}
+	{% for post in posts %}
+		<article class="media content-section">
+      <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+  			<div class="media-body">
+    			<div class="article-metadata">
+      				<a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+      				<small class="text-muted">{{ post.date_posted|date:"F d,Y" }}</small>
+    			</div>
+    			<h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+    			<p class="article-content">{{ post.content }}</p>
+          <fieldset class="form-group">
+            <legend class="border-bottom mb-4">
+              </legend>
+                {{form | crispy}}
+                <form class ="myform" action="{% url 'like_post' post.pk %}" method="POST">
+                  {% csrf_token %}
+                  {% if is_liked %}
+                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-info"><i class="far fa-thumbs-up fa-2x"></i>
+                    </button>
+                  {% else %}
+                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info"><i class="far fa-thumbs-up fa-2x"></i>
+                    </button>
+                  {% endif %}
+                    {{ post.total_likes }} Likes
+                </form>
+                <a class="myform" href="{% url 'post-detail' post.id %}">
+                  <button type = "submit" class="btn btn-outline-info"><i class="far fa-comment fa-2x"></i>
+                  </button>
+                </a>
+                <form class="myform" action="{% url 'fav_post' post.pk %}" method="POST">
+                  {% csrf_token %}
+                  {% if is_favourite %}
+                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-info"><i class="far fa-heart fa-2x"></i>
+                    </button>
+                  {% else %}
+                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info"><i class="far fa-heart fa-2x"></i>
+                    </button>
+                  {% endif %}
+                    {{ post.favourites.count }} FAV
+                </form>
+                    <button value="#" name="#" type="submit" class="btn btn-outline-info"><i class="far fa-share-square fa-2x"></i></button>
+          </fieldset>
+  			</div>
+		</article>
+      {% empty %}
+        <div class="container-fluid">
+          <h3>No Post Found</h3>
+        </div>
+	{% endfor %}
+  {% if is_paginated %}
+    {% if page_obj.has_previous %}
+      <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
+      <a class="btn btn-outline-info mb-4" href="?page={{page_obj.previous_page_number}}">Previous</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+        <a class="btn btn-info mb-4" href="?page={{num}}">{{num}}</a>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <a class="btn btn-outline-info mb-4" href="?page={{num}}">{{num}}</a>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <a class="btn btn-outline-info mb-4" href="?page={{page_obj.next_page_number}}">Next</a>
+      <a class="btn btn-outline-info mb-4" href="?page={{page_obj.paginator.num_pages}}">Last</a>
+    {% endif %}
+  {% endif %}
+{% endblock content %}

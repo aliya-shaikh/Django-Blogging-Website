@@ -1,0 +1,82 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block content%}
+  <article class="media content-section">
+  	<div class="media-body">
+    	<div class="article-metadata">
+      	<a class="mr-2" href="{% url 'user-posts' object.author.username %}">{{ object.author }}</a>
+      		<small class="text-muted">{{ object.date_posted|date:"F d,Y" }}</small>
+          {% if object.author == user %}
+            <div>
+              <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'post-update' object.id %}">Update</a>
+              <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' object.id %}">Delete</a>
+            </div>
+          {% endif %}
+    	</div>
+    		<h2 class="article-title">{{ object.title }}</h2>
+    		<p class="article-content">{{ object.content }}</p>
+          <fieldset class="form-group">
+            <legend class="border-bottom mb-4">
+              </legend>
+                {{form | crispy}}
+                <form class="myform" action="{% url 'my_like_post' post.pk %}" method="POST">
+                  {% csrf_token %}
+                  {% if is_liked %}
+                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info"><i class="far fa-thumbs-down fa-2x"></i>
+                    </button>
+                  {% else %}
+                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info"><i class="far fa-thumbs-up fa-2x"></i>
+                    </button>
+                  {% endif %}
+                  {{ post.total_likes }} Likes
+                </form>
+                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info"><i class="far fa-comment fa-2x"></i>
+                    </button>
+                <form class="myform" action="{% url 'fav_post' post.pk %}" method="POST">
+                  {% csrf_token %}
+                  {% if is_favourite %}
+                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-info"><i class="far fa-heart fa-2x"></i>
+                    </button>
+                  {% else %}
+                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info"><i class="far fa-heart fa-2x"></i>
+                    </button>
+                  {% endif %}
+                    {{ post.total_favourites }} FAV
+                </form>
+                    <button value="#" name="#" type="submit" class="btn btn-outline-info"><i class="far fa-share-square fa-2x"></i></button>
+          </fieldset>        
+  	</div>
+	</article>
+  <div class="content-section">
+    <form action = "" method="POST">
+      {% csrf_token %}
+      {{form | crispy}}
+      <fieldset class="form-group">
+        <legend class="border-bottom mb-4"> Add Comment
+        </legend>
+          <div class="form-group">
+            <label>Comment</label>
+            <div class="">
+              <textarea class="textarea form-control">
+              </textarea>
+            </div>
+          </div>
+      </fieldset>
+      <div class="form-group">
+        <button class="btn btn-outline-info" type="submit"> Comment
+        </button>
+      </div>
+    </form>
+    <div class="main-comment-section">
+      {{ post.comments.count }} Comments {{ comments | pluralize}}
+      {% for comment in post.comments.all %}
+        <blockquote class="blockquote">
+          <p class="mb-0">{{ comment.body }}</p>
+          <footer class="blockquote-footer">by <cite title="Source Title">{{ comment.user | capfirst }}</cite></footer>
+      {% empty %}
+        <p>No comments here yet </p>
+        </blockquote>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock content %}

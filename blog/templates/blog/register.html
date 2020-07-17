@@ -1,0 +1,46 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4"> Join Today
+                </legend>
+                {{form | crispy}}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit"> Sign Up
+                </button>
+            </div>
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">------------------------ OR CONTINUE WITH ----------------------
+                </legend>
+                <a href="{% url 'social:begin' 'facebook' %}">
+                    <button type='button' class="btn btn-primary active"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i> Facebook </button>
+                </a>
+                <a href="{% url 'social:begin' 'github' %}">
+                    <button type="button" class="btn btn-secondary"><i class="fa fa-github fa-lg" aria-hidden="true"></i> Github </button>
+                </a>
+                <a href="{% url 'social:begin' 'twitter' %}">
+                    <button type='button' class="btn btn-primary"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i> Twitter </button>
+                </a>
+                <a href="{% url 'social:begin' 'google-oauth2' %}">
+                    <button type='button' class="btn btn-danger" name="button"><i class="fa fa-google fa-lg" aria-hidden="true"></i> Google+ </button>
+                </a>
+                <a href="{% url 'social:begin' 'linkedin-oauth2' %}">
+                    <button type='button' class="btn btn-primary"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i> LinkedIn </button>
+                </a>
+                <a href="#">
+                    <button type='button' class="btn btn-info"><i class="fa fa-telegram fa-lg" aria-hidden="true"></i> Telegram </button>
+                </a>
+            </fieldset>
+        </form>
+        <div class="border-top pt-3">
+            <small class="text-muted">
+                Already Have An Account ?
+                <a class="ml-2" href="{% url 'login' %}"> Sign In </a>
+            </small>
+        </div>
+    </div>
+{% endblock content %}
