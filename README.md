@@ -1,4 +1,5 @@
 # Awesome-Blog
+ This a Blogging Website and my first project which i have created using django, There is all functionality in it as i remember and on Comment section i am still working and when i will done with this will update the file. It is completely working now.
 #REQUIREMENTS : 
 Python version 3.6 or higher, Subllime Text (or any other IDE you like), Django Lates Version
 To download Django : pip install django
