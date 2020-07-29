@@ -17,14 +17,25 @@
                 {{form | crispy}}
                 <form class ="myform" action="{% url 'like_post' post.pk %}" method="POST">
                   {% csrf_token %}
-                  {% if is_liked %}
-                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-info"><i class="far fa-thumbs-up fa-2x"></i>
-                    </button>
+                  {% if request.user.is_authenticated %}
+                      {% if is_liked %}
+                          <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-info"><i class="far fa-thumbs-up fa-2x"></i>
+                          </button>
+                      {% else %}
+                          <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info"><i class="far fa-thumbs-up fa-2x"></i>
+                          </button>
+                      {% endif %}
+                      {{ post.total_likes }} Likes
                   {% else %}
-                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info"><i class="far fa-thumbs-up fa-2x"></i>
-                    </button>
+                      {% if is_liked %}
+                          <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-info" disabled><i class="far fa-thumbs-up fa-2x"></i>
+                          </button>
+                      {% else %}
+                          <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info" disabled><i class="far fa-thumbs-up fa-2x"></i>
+                          </button>
+                      {% endif %}
+                      {{ post.total_likes }} Likes
                   {% endif %}
-                    {{ post.total_likes }} Likes
                 </form>
                 <a class="myform" href="{% url 'post-detail' post.id %}">
                   <button type = "submit" class="btn btn-outline-info"><i class="far fa-comment fa-2x"></i>
@@ -32,14 +43,25 @@
                 </a>
                 <form class="myform" action="{% url 'fav_post' post.pk %}" method="POST">
                   {% csrf_token %}
-                  {% if is_favourite %}
-                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-info"><i class="far fa-heart fa-2x"></i>
-                    </button>
+                  {% if request.user.is_authenticated %}
+                      {% if is_favourite %}
+                          <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-info"><i class="far fa-heart fa-2x"></i>
+                          </button>
+                      {% else %}
+                          <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info"><i class="far fa-heart fa-2x"></i>
+                          </button>
+                      {% endif %}
+                      {{ post.favourites.count }} FAV
                   {% else %}
-                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info"><i class="far fa-heart fa-2x"></i>
-                    </button>
+                      {% if is_favourite %}
+                          <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-info" disabled><i class="far fa-heart fa-2x"></i>
+                          </button>
+                      {% else %}
+                          <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info" disabled><i class="far fa-heart fa-2x"></i>
+                          </button>
+                      {% endif %}
+                      {{ post.favourites.count }} FAV
                   {% endif %}
-                    {{ post.favourites.count }} FAV
                 </form>
                     <button value="#" name="#" type="submit" class="btn btn-outline-info"><i class="far fa-share-square fa-2x"></i></button>
           </fieldset>
