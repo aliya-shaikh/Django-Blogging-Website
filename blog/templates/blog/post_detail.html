@@ -2,6 +2,7 @@
 {% load crispy_forms_tags %}
 {% block content%}
   <article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}">
   	<div class="media-body">
     	<div class="article-metadata">
       	<a class="mr-2" href="{% url 'user-posts' object.author.username %}">{{ object.author }}</a>
@@ -17,66 +18,76 @@
     		<p class="article-content">{{ object.content }}</p>
           <fieldset class="form-group">
             <legend class="border-bottom mb-4">
-              </legend>
+             </legend>
                 {{form | crispy}}
                 <form class="myform" action="{% url 'my_like_post' post.pk %}" method="POST">
                   {% csrf_token %}
-                  {% if is_liked %}
-                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info"><i class="far fa-thumbs-down fa-2x"></i>
-                    </button>
+                  {% if request.user.is_authenticated %}
+                      {% if is_liked %}
+                          <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-info"><i class="far fa-thumbs-up fa-2x"></i>
+                          </button>
+                      {% else %}
+                          <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info"><i class="far fa-thumbs-up fa-2x"></i>
+                          </button>
+                      {% endif %}
+                      {{ post.total_likes }} Likes
                   {% else %}
-                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info"><i class="far fa-thumbs-up fa-2x"></i>
-                    </button>
+                      {% if is_liked %}
+                          <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-info" disabled><i class="far fa-thumbs-up fa-2x"></i>
+                          </button>
+                      {% else %}
+                          <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info" disabled><i class="far fa-thumbs-up fa-2x"></i>
+                          </button>
+                      {% endif %}
+                      {{ post.total_likes }} Likes
                   {% endif %}
-                  {{ post.total_likes }} Likes
                 </form>
+                <a class="myform" href="{% url 'add_comment' post.pk %}">
                     <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info"><i class="far fa-comment fa-2x"></i>
                     </button>
-                <form class="myform" action="{% url 'fav_post' post.pk %}" method="POST">
+                </a>
+                <form class="myform" action="{% url 'my_fav_post' post.pk %}" method="POST">
                   {% csrf_token %}
-                  {% if is_favourite %}
-                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-info"><i class="far fa-heart fa-2x"></i>
-                    </button>
+                  {% if request.user.is_authenticated %}
+                      {% if is_favourite %}
+                          <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-info"><i class="far fa-heart fa-2x"></i>
+                          </button>
+                      {% else %}
+                          <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info"><i class="far fa-heart fa-2x"></i>
+                          </button>
+                      {% endif %}
+                      {{ post.favourites.count }} FAV
                   {% else %}
-                    <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info"><i class="far fa-heart fa-2x"></i>
-                    </button>
+                      {% if is_favourite %}
+                          <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-info" disabled><i class="far fa-heart fa-2x"></i>
+                          </button>
+                      {% else %}
+                          <button value="{{ post.id }}" name="post_id" type="submit" class="btn btn-outline-info" disabled><i class="far fa-heart fa-2x"></i>
+                          </button>
+                      {% endif %}
+                      {{ post.favourites.count }} FAV
                   {% endif %}
-                    {{ post.total_favourites }} FAV
                 </form>
                     <button value="#" name="#" type="submit" class="btn btn-outline-info"><i class="far fa-share-square fa-2x"></i></button>
-          </fieldset>        
+          </fieldset>
   	</div>
 	</article>
-  <div class="content-section">
-    <form action = "" method="POST">
-      {% csrf_token %}
-      {{form | crispy}}
-      <fieldset class="form-group">
-        <legend class="border-bottom mb-4"> Add Comment
-        </legend>
-          <div class="form-group">
-            <label>Comment</label>
-            <div class="">
-              <textarea class="textarea form-control">
-              </textarea>
-            </div>
-          </div>
-      </fieldset>
-      <div class="form-group">
-        <button class="btn btn-outline-info" type="submit"> Comment
-        </button>
-      </div>
-    </form>
     <div class="main-comment-section">
+    <fieldset class="form-group">
+       <legend class="border-bottom mb-4">Comments
+       </legend>
+        {{form | crispy}}
       {{ post.comments.count }} Comments {{ comments | pluralize}}
       {% for comment in post.comments.all %}
+      	<article class="media content-section">
         <blockquote class="blockquote">
           <p class="mb-0">{{ comment.body }}</p>
-          <footer class="blockquote-footer">by <cite title="Source Title">{{ comment.user | capfirst }}</cite></footer>
+          <footer class="blockquote-footer">by <cite title="Source Title">{{ comment.name | capfirst }}</cite></footer>
+        </article>
       {% empty %}
         <p>No comments here yet </p>
         </blockquote>
       {% endfor %}
+      </fieldset>
     </div>
-  </div>
 {% endblock content %}
