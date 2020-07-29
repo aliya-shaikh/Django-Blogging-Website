@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from django.contrib.auth.models import User
 from .models import Post,Profile,Comment
-from django.views.generic import DetailView,CreateView,UpdateView,DeleteView,ListView
+from django.contrib.auth.models import User
+from django.views.generic import CreateView,UpdateView,DeleteView,ListView,DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from .forms import UserRegisterForm,UserUpdateForm,ProfileUpdateForm,CommentForm
@@ -29,7 +29,6 @@ def terms(request):
 def me(request):
 	return render(request,'blog/me.html')
 
-@login_required
 def like_post(request, pk):
 	post = get_object_or_404(Post, id= request.POST.get('post_id'))
 	is_liked = False
@@ -42,19 +41,18 @@ def like_post(request, pk):
 
 	return HttpResponseRedirect(reverse('home'))
 
-@login_required
 def fav_post(request, pk):
 	post = get_object_or_404(Post, id=request.POST.get('post_id'))
 	is_favourite = False
 	if post.favourites.filter(id=request.user.id).exists():
 		post.favourites.remove(request.user)
 		is_favourite = False
+		return redirect ('home')
 	else:
 		post.favourites.add(request.user)
 		is_favourite = True
 	return HttpResponseRedirect(reverse('home'))
 
-@login_required
 def my_like_post(request, pk):
 	post = get_object_or_404(Post, id= request.POST.get('post_id'))
 	is_liked = False
@@ -66,7 +64,6 @@ def my_like_post(request, pk):
 		is_liked = True
 	return HttpResponseRedirect(post.get_absolute_url())
 
-@login_required
 def my_fav_post(request, pk):
 	post = get_object_or_404(Post, id=request.POST.get('post_id'))
 	is_favourite = False
@@ -78,12 +75,10 @@ def my_fav_post(request, pk):
 		is_favourite = True
 	return HttpResponseRedirect(post.get_absolute_url())
 
-@login_required
 def myfavpost(request):
 	user = request.user
 	favourite_posts = user.favourites.all()
 	return render(request,'blog/myfavpost.html',{'favourite_posts':favourite_posts})
-		
 
 def register(request):
 	if request.method =='POST':
@@ -148,6 +143,11 @@ class PostListView(ListView):
 			result = postresult
 		return result
 
+class PostDetailView(DetailView):
+	model = Post
+	template_name = 'blog/post_detail.html'
+
+
 class UserPostListView(ListView):
 	model = Post
 	template_name = 'blog/user_posts.html'
@@ -158,8 +158,6 @@ class UserPostListView(ListView):
 		user = get_object_or_404(User,username=self.kwargs.get('username'))
 		return Post.objects.filter(author=user).order_by('-date_posted')
 
-class PostDetailView(DetailView):
-	model = Post
 
 class PostCreateView(LoginRequiredMixin,CreateView):
 	model = Post
@@ -168,6 +166,16 @@ class PostCreateView(LoginRequiredMixin,CreateView):
 
 	def form_valid(self,form):
 		form.instance.author = self.request.user
+		return super().form_valid(form)
+
+class CommentCreateView(LoginRequiredMixin,CreateView):
+	model = Comment
+	fields = ['name','body']
+	template_name = 'blog/add_comment.html'
+	success_url = '/'
+
+	def form_valid(self,form):
+		form.instance.post_id = self.kwargs['pk']
 		return super().form_valid(form)
 
 class PostUpdateView(LoginRequiredMixin,UserPassesTestMixin,SuccessMessageMixin,UpdateView):
